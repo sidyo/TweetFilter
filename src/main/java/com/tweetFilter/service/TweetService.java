@@ -31,36 +31,45 @@ public class TweetService {
     }
 
     public void addTweets(List<Tweet> tweetList) {
+        log.info("Received tweets: {}", tweetList.size());
         this.tweets.addAll(tweetList);
+        log.info("Total tweets: {}", tweets.size());
         InvertedList temporaryList = new InvertedList();
         temporaryList.addTweets(tweetList);
+        log.info("Received unique terms: {}", temporaryList.getList().size());
         trie.addAll(temporaryList);
+        log.info("Finished adding all terms to trie.");
     }
 
     public Set<Tweet> search(String filter) {
+        log.info("Received filter: {}", filter);
         String[] filters = filter.trim().toLowerCase().split("\\s+");
-        if(filters.length % 2 == 0){
+        if (filters.length % 2 == 0) {
             return null;
         }
         Set<Tweet> resultSet = getTweets(filters[0]);
 
-        for (int i = 1; i < filters.length; i=i+2) {
-            Set<Tweet> nextFilter = getTweets(filters[i+1]);
-            switch (filters[i]){
-                case AND:resultSet.retainAll(nextFilter);break;
-                case OR: resultSet.addAll(nextFilter); break;
+        for (int i = 1; i < filters.length; i = i + 2) {
+            Set<Tweet> nextFilter = getTweets(filters[i + 1]);
+            switch (filters[i]) {
+                case AND:
+                    resultSet.retainAll(nextFilter);
+                    break;
+                case OR:
+                    resultSet.addAll(nextFilter);
+                    break;
             }
         }
         return resultSet;
     }
 
-    private Set<Tweet> getTweets(String filter){
+    private Set<Tweet> getTweets(String filter) {
         Set<Tweet> resultSet;
-        if(filter.startsWith(NOT)){
+        if (filter.startsWith(NOT)) {
             resultSet = new HashSet<>(tweets);
             Set<Tweet> aux = trie.getTweetList(filter.substring(1));
             resultSet.removeAll(aux);
-        }else{
+        } else {
             resultSet = new HashSet<>(trie.getTweetList(filter));
         }
         return resultSet;

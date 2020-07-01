@@ -3,9 +3,7 @@ package com.tweetFilter.dataStructures;
 import com.tweetFilter.dto.Tweet;
 import lombok.Getter;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Objects.isNull;
 
@@ -33,8 +31,10 @@ public class Trie {
     }
 
     public void addAll(InvertedList invertedList) {
-        for (InvertedListEntry entry : invertedList) {
-            add(entry);
+        Iterator<Map.Entry<String, InvertedListEntry>> it = invertedList.getList().entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, InvertedListEntry> pair = it.next();
+            add(pair.getValue());
         }
     }
 

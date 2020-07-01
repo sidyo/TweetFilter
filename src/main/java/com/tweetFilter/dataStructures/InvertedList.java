@@ -1,44 +1,56 @@
 package com.tweetFilter.dataStructures;
 
 import com.tweetFilter.dto.Tweet;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class InvertedList implements Iterable<InvertedListEntry>{
-    private List<InvertedListEntry> list;
+import static java.util.Objects.isNull;
+
+@Getter
+@Slf4j
+public class InvertedList {
+    private HashMap<String, InvertedListEntry> list;
 
     public InvertedList() {
-        list = new LinkedList<>();
+        list = new HashMap<>();
     }
 
     public void addTweet(Tweet tweet) {
         for (String word : Arrays.stream(tweet.getText().toLowerCase().split("\\s+")).distinct().collect(Collectors.toList())) {
-            boolean newWord = true;
-            for (InvertedListEntry entry : list) {
-                if (entry.key.equals(word)) {
-                    entry.tweetSet.add(tweet);
-                    newWord = false;
-                    break;
-                }
+            InvertedListEntry entry = list.get(word);
+            if(isNull(entry)){
+                entry = new InvertedListEntry(word);
+                list.put(word,entry);
             }
-            if (newWord) {
-                InvertedListEntry newEntry = new InvertedListEntry(word);
-                newEntry.addTweet(tweet);
-                list.add(newEntry);
-            }
+            entry.addTweet(tweet);
         }
     }
 
     public void addTweets(List<Tweet> tweetList) {
+        int count = 0;
+        Instant start = Instant.now();
+        Instant lastIteration;
+        Instant now = Instant.now();
         for (Tweet tweet : tweetList) {
+            count++;
+            if(count % 500 == 0){
+                lastIteration = now;
+                now = Instant.now();
+                log.info("Inserted {} tweets. List size: {}. Elapsed time: {} milis. Time since last log: {} milis.",count, list.size(), Duration.between(start,now).toMillis(), Duration.between(lastIteration,now).toMillis());
+            }
             addTweet(tweet);
         }
     }
 
-    @Override
+    /*@Override
     public Iterator<InvertedListEntry> iterator() {
-        return list.iterator();
-    }
+        //return list.iterator();
+        return list.entrySet().iterator();
+    }*/
 
 }

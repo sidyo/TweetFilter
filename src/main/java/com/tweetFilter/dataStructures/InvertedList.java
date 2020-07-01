@@ -34,14 +34,12 @@ public class InvertedList {
     public void addTweets(List<Tweet> tweetList) {
         int count = 0;
         Instant start = Instant.now();
-        Instant lastIteration;
-        Instant now = Instant.now();
+        Instant now;
         for (Tweet tweet : tweetList) {
             count++;
             if(count % 500 == 0){
-                lastIteration = now;
                 now = Instant.now();
-                log.info("Inserted {} tweets. List size: {}. Elapsed time: {} milis. Time since last log: {} milis.",count, list.size(), Duration.between(start,now).toMillis(), Duration.between(lastIteration,now).toMillis());
+                log.info("Inserted {} tweets. List size: {}. Elapsed time: {} milis.",count, list.size(), Duration.between(start,now).toMillis());
             }
             addTweet(tweet);
         }

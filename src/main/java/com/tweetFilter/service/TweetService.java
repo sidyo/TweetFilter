@@ -60,6 +60,7 @@ public class TweetService {
                     break;
             }
         }
+        log.info("Total tweets matching filter: {}.",resultSet.size());
         return resultSet;
     }
 

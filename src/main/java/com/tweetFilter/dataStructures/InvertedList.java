@@ -23,9 +23,9 @@ public class InvertedList {
     public void addTweet(Tweet tweet) {
         for (String word : Arrays.stream(tweet.getText().toLowerCase().split("\\s+")).distinct().collect(Collectors.toList())) {
             InvertedListEntry entry = list.get(word);
-            if(isNull(entry)){
+            if (isNull(entry)) {
                 entry = new InvertedListEntry(word);
-                list.put(word,entry);
+                list.put(word, entry);
             }
             entry.addTweet(tweet);
         }
@@ -34,21 +34,15 @@ public class InvertedList {
     public void addTweets(List<Tweet> tweetList) {
         int count = 0;
         Instant start = Instant.now();
-        Instant now;
+        Instant now = Instant.now();
         for (Tweet tweet : tweetList) {
             count++;
-            if(count % 500 == 0){
+            if (count % 5000 == 0) {
                 now = Instant.now();
-                log.info("Inserted {} tweets. List size: {}. Elapsed time: {} milis.",count, list.size(), Duration.between(start,now).toMillis());
+                log.info("Inserted {} tweets. List size: {}. Elapsed time: {} millis.", count, list.size(), Duration.between(start, now).toMillis());
             }
             addTweet(tweet);
         }
+        log.info("Inserted {} tweets. List size: {}. Elapsed time: {} millis.", count, list.size(), Duration.between(start, now).toMillis());
     }
-
-    /*@Override
-    public Iterator<InvertedListEntry> iterator() {
-        //return list.iterator();
-        return list.entrySet().iterator();
-    }*/
-
 }

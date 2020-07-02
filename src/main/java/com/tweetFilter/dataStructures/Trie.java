@@ -27,7 +27,6 @@ public class Trie {
             currentNode = nextNode;
         }
         currentNode.addTweets(entry.getTweetSet());
-
     }
 
     public void addAll(InvertedList invertedList) {
@@ -42,7 +41,7 @@ public class Trie {
         TrieNode currentNode = root;
         for (Character c : key.toCharArray()) {
             currentNode = currentNode.getChild(c);
-            if(isNull(currentNode)){
+            if (isNull(currentNode)) {
                 return new HashSet<>();
             }
         }

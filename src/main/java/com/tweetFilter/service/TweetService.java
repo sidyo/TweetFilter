@@ -6,6 +6,8 @@ import com.tweetFilter.dto.Tweet;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,18 +33,24 @@ public class TweetService {
     }
 
     public void addTweets(List<Tweet> tweetList) {
+        Instant start;
+        Instant end;
         log.info("Received tweets: {}", tweetList.size());
         this.tweets.addAll(tweetList);
-        log.info("Total tweets: {}", tweets.size());
         InvertedList temporaryList = new InvertedList();
+        start = Instant.now();
         temporaryList.addTweets(tweetList);
-        log.info("Received unique terms: {}", temporaryList.getList().size());
+        end = Instant.now();
+        log.info("Total unique terms: {}. Elapsed time building Inverted List {} millis.", temporaryList.getList().size(), Duration.between(start, end).toMillis());
+        start = Instant.now();
         trie.addAll(temporaryList);
-        log.info("Finished adding all terms to trie.");
+        end = Instant.now();
+        log.info("Finished building trie. Elapsed time building trie {} millis.", Duration.between(start, end).toMillis());
     }
 
     public Set<Tweet> search(String filter) {
         log.info("Received filter: {}", filter);
+        Instant start = Instant.now();
         String[] filters = filter.trim().toLowerCase().split("\\s+");
         if (filters.length % 2 == 0) {
             return null;
@@ -60,7 +68,8 @@ public class TweetService {
                     break;
             }
         }
-        log.info("Total tweets matching filter: {}.",resultSet.size());
+        Instant end = Instant.now();
+        log.info("Total tweets matching filter: {}. Total elapsed time: {} millis.", resultSet.size(), Duration.between(start, end).toMillis());
         return resultSet;
     }
 

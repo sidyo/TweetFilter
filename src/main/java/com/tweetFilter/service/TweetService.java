@@ -28,8 +28,11 @@ public class TweetService {
     }
 
     public void reset() {
+        log.info("Received request to reset data structures.");
         tweets = new HashSet<>();
         trie = new Trie();
+        System.gc();
+        log.info("Data structures have been reset.");
     }
 
     public void addTweets(List<Tweet> tweetList) {

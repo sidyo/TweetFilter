@@ -15,8 +15,10 @@ import java.time.LocalDateTime;
 public class Tweet implements Serializable {
 
     private static final long serialVersionUID = 3487805389649513150L;
+
+    //Note: Date format is inconsistent across test cases. Leave the JsonFormat annotation in case of the world cup, remove it in case of the BBB.
     @JsonProperty("created_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created_at;
     @JsonProperty
     private String username;

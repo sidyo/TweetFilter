@@ -20,9 +20,9 @@ public class TweetService {
 
     private Set<Tweet> tweets;
     private Trie trie;
+    private MLService mlService;
 
-
-    public TweetService() {
+    public TweetService() throws Exception {
         tweets = new HashSet<>();
         trie = new Trie();
     }
@@ -35,20 +35,21 @@ public class TweetService {
         log.info("Data structures have been reset.");
     }
 
-    public void addTweets(List<Tweet> tweetList) {
-        Instant start;
-        Instant end;
+    public void addTweets(List<Tweet> tweetList) throws Exception {
         log.info("Received tweets: {}", tweetList.size());
         this.tweets.addAll(tweetList);
         InvertedList temporaryList = new InvertedList();
-        start = Instant.now();
+        Instant start = Instant.now();
         temporaryList.addTweets(tweetList);
-        end = Instant.now();
+        Instant end = Instant.now();
         log.info("Total unique terms: {}. Elapsed time building Inverted List {} millis.", temporaryList.getList().size(), Duration.between(start, end).toMillis());
         start = Instant.now();
         trie.addAll(temporaryList);
         end = Instant.now();
         log.info("Finished building trie. Elapsed time building trie {} millis.", Duration.between(start, end).toMillis());
+
+        classifyTweets(tweetList);
+        mlService.printHitPercentage(tweetList);
     }
 
     public Set<Tweet> search(String filter) {
@@ -86,5 +87,9 @@ public class TweetService {
             resultSet = new HashSet<>(trie.getTweetList(filter));
         }
         return resultSet;
+    }
+
+    private void classifyTweets(List<Tweet> tweets) throws Exception {
+        mlService.classifyTweets(tweets);
     }
 }

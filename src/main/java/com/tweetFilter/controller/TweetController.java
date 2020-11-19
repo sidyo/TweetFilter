@@ -21,7 +21,7 @@ public class TweetController {
 
     @PutMapping("/add")
     @ResponseStatus(CREATED)
-    public void addTweets(@RequestBody List<Tweet> tweetList) {
+    public void addTweets(@RequestBody List<Tweet> tweetList) throws Exception {
         tweetService.addTweets(tweetList);
     }
 

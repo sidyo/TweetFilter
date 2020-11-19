@@ -2,8 +2,10 @@ package com.tweetFilter.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.io.Serializable;
@@ -11,6 +13,7 @@ import java.time.LocalDateTime;
 
 @ToString
 @Getter
+@Setter
 @EqualsAndHashCode
 public class Tweet implements Serializable {
 
@@ -18,7 +21,7 @@ public class Tweet implements Serializable {
 
     //Note: Date format is inconsistent across test cases. Leave the JsonFormat annotation in case of the world cup, remove it in case of the BBB.
     @JsonProperty("created_at")
-    //@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created_at;
     @JsonProperty
     private String username;
@@ -30,5 +33,10 @@ public class Tweet implements Serializable {
     private String text;
     @JsonProperty
     private long id;
+    @JsonProperty
+    @Ignore
+    String sentimentML;
+    @JsonProperty
+    String expectedSentiment;
 
 }

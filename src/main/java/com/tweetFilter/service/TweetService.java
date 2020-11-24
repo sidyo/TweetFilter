@@ -4,6 +4,7 @@ import com.tweetFilter.dataStructures.InvertedList;
 import com.tweetFilter.dataStructures.Trie;
 import com.tweetFilter.dto.Tweet;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -20,7 +21,10 @@ public class TweetService {
 
     private Set<Tweet> tweets;
     private Trie trie;
+    @Autowired
     private MLService mlService;
+    @Autowired
+    private LexicalDictionaryService lexicalDictionaryService;
 
     public TweetService() throws Exception {
         tweets = new HashSet<>();
@@ -49,7 +53,7 @@ public class TweetService {
         log.info("Finished building trie. Elapsed time building trie {} millis.", Duration.between(start, end).toMillis());
 
         classifyTweets(tweetList);
-        mlService.printHitPercentage(tweetList);
+        printHitPercentage(tweetList);
     }
 
     public Set<Tweet> search(String filter) {
@@ -91,5 +95,87 @@ public class TweetService {
 
     private void classifyTweets(List<Tweet> tweets) throws Exception {
         mlService.classifyTweets(tweets);
+        lexicalDictionaryService.classifyTweets(tweets);
+    }
+
+    public void printHitPercentage(List<Tweet> tweets) {
+        int countTotalNegative = 0;
+        int countTotalPositive = 0;
+        int countTotalNeutral = 0;
+
+        int countTotalInputErrors = 0;
+
+        int countMLPositiveGuess = 0;
+        int countMLNegativeGuess = 0;
+        int countMLNeutralGuess = 0;
+
+        int countMLNegative = 0;
+        int countMLPositive = 0;
+        int countMLNeutral = 0;
+
+        int countDictPositiveGuess = 0;
+        int countDictNegativeGuess = 0;
+        int countDictNeutralGuess = 0;
+
+        int countDictNegative = 0;
+        int countDictPositive = 0;
+        int countDictNeutral = 0;
+
+        for (Tweet t: tweets){
+            switch (t.getExpectedSentiment()) {
+                case POSITIVE:
+                    countTotalPositive++;
+                    if (t.getSentimentML().equals(POSITIVE)) {
+                        countMLPositive++;
+                    }
+                    if(t.getSentimentDict().equals(POSITIVE)) {
+                        countDictPositive++;
+                    }
+                    break;
+                case (NEGATIVE):
+                    countTotalNegative++;
+                    if (t.getSentimentML().equals(NEGATIVE)) {
+                        countMLNegative++;
+                    }
+                    if(t.getSentimentDict().equals(NEGATIVE)) {
+                        countDictNegative++;
+                    }
+                    break;
+                case NEUTRAL:
+                    countTotalNeutral++;
+                    if (t.getSentimentML().equals(NEUTRAL)) {
+                        countMLNeutral++;
+                    }
+                    if(t.getSentimentDict().equals(NEUTRAL)) {
+                        countDictNeutral++;
+                    }
+                    break;
+                default:
+                    countTotalInputErrors++;
+                    break;
+            }
+            switch ((t.getSentimentML())){
+                case POSITIVE:countMLPositiveGuess++;break;
+                case NEGATIVE:countMLNegativeGuess++;break;
+                case NEUTRAL:countMLNeutralGuess++;break;
+            }
+            switch ((t.getSentimentDict())){
+                case POSITIVE:countDictPositiveGuess++;break;
+                case NEGATIVE:countDictNegativeGuess++;break;
+                case NEUTRAL:countDictNeutralGuess++;break;
+            }
+        }
+        log.info("\nResults: Total Entries: {}. Total ML Hits: {} ({}%). Total Dict Hits: {} ({}%)\n" +
+                        "Positives: Total: {}. ML Guesses: {}. ML Got Right: {} ({}%). Dict Guesses: {}. Dict Got Right: {} ({}%)\n" +
+                        "Negatives: Total: {}. ML Guesses: {}. ML Got Right: {} ({}%). Dict Guesses: {}. Dict Got Right: {} ({}%)\n" +
+                        "Neutrals: Total: {}. ML Guesses: {}. ML Got Right: {} ({}%). Dict Guesses: {}. Dict Got Right: {} ({}%)\n" +
+                        "Input Missing Sentiment: {}",
+                tweets.size(), countMLNegative+countMLNeutral+countMLPositive,(double) (countMLNegative+countMLNeutral+countMLPositive)*100/tweets.size(), countDictNegative+countDictNeutral+countDictPositive, (double)(countDictNegative+countDictNeutral+countDictPositive)*100/tweets.size(),
+                countTotalPositive, countMLPositiveGuess, countMLPositive, (double)countMLPositive*100/countTotalPositive, countDictPositiveGuess, countDictPositive, (double) countDictPositive*100/countTotalPositive,
+                countTotalNegative, countMLNegativeGuess, countMLNegative, (double)countMLNegative*100/countTotalNegative, countDictNegativeGuess, countDictNegative, (double) countDictNegative*100/countTotalNegative,
+                countTotalNeutral, countMLNeutralGuess, countMLNeutral, (double)countMLNeutral*100/countTotalNeutral, countDictNeutralGuess, countDictNeutral, (double) countDictNeutral*100/countTotalNeutral,
+                countTotalInputErrors
+        );
+        lexicalDictionaryService.printMisses();
     }
 }

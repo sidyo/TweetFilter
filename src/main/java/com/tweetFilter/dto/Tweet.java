@@ -34,9 +34,11 @@ public class Tweet implements Serializable {
     @JsonProperty
     private long id;
     @JsonProperty
+    String expectedSentiment;
+    @JsonProperty
     @Ignore
     String sentimentML;
     @JsonProperty
-    String expectedSentiment;
-
+    @Ignore
+    String sentimentDict;
 }

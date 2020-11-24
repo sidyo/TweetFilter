@@ -28,12 +28,12 @@ public class MLService {
 
     public MLService() throws Exception {
         map = new HashMap<>();
-        map.put(POSITIVE,new HashSet<>());
-        map.put(NEGATIVE,new HashSet<>());
-        map.put(NEUTRAL,new HashSet<>());
+        map.put(POSITIVE, new HashSet<>());
+        map.put(NEGATIVE, new HashSet<>());
+        map.put(NEUTRAL, new HashSet<>());
         String dataset = MULTIPLESETS;
-        log.info("Started training with dataset: {}",dataset);
-        ConverterUtils.DataSource ds = new ConverterUtils.DataSource("src/main/resources/"+dataset);
+        log.info("Started ML Training With Dataset: {}", dataset);
+        ConverterUtils.DataSource ds = new ConverterUtils.DataSource("src/main/resources/" + dataset);
         ins = ds.getDataSet();
         ins.setClassIndex(1);
 
@@ -49,7 +49,7 @@ public class MLService {
         fc.setFilter(filter);
         fc.setClassifier(tree);
         fc.buildClassifier(ins);
-        log.info("Finished Building Classifier. Ready to go.");
+        log.info("Finished ML Training.");
     }
 
     public void classifyTweets(List<Tweet> tweets) throws Exception {
@@ -61,82 +61,23 @@ public class MLService {
             novo.setValue(0, t.getText());
             double[] probabilidade = fc.distributionForInstance(novo);
             //log.info("{} Negativo: '{}'. Neutro:'{}'. Positivo '{}'.",t.getText(),probabilidade[0],probabilidade[1], probabilidade[2]);
-            if(probabilidade[0] > probabilidade[1] && probabilidade[0] > probabilidade[2]){
+            if (probabilidade[0] > probabilidade[1] && probabilidade[0] > probabilidade[2]) {
                 t.setSentimentML(NEGATIVE);
                 Set<Tweet> aux = map.get(NEGATIVE);
                 aux.add(t);
-                map.put(NEGATIVE,aux);
-            } else if(probabilidade[1] > probabilidade[0] && probabilidade[1] > probabilidade[2]){
+                map.put(NEGATIVE, aux);
+            } else if (probabilidade[1] > probabilidade[0] && probabilidade[1] > probabilidade[2]) {
                 t.setSentimentML(NEUTRAL);
                 Set<Tweet> aux = map.get(NEUTRAL);
                 aux.add(t);
-                map.put(NEUTRAL,aux);
-            }else{
+                map.put(NEUTRAL, aux);
+            } else {
                 t.setSentimentML(POSITIVE);
                 Set<Tweet> aux = map.get(POSITIVE);
                 aux.add(t);
-                map.put(POSITIVE,aux);
+                map.put(POSITIVE, aux);
             }
         }
         log.info("ML Tweet classification finished.");
-    }
-
-    public void printHitPercentage(List<Tweet> tweets) {
-        int countTotalNegative = 0;
-        int countTotalPositive = 0;
-        int countTotalNeutral = 0;
-
-        int countTotalInputErrors = 0;
-
-        int countMLPositiveGuess = 0;
-        int countMLNegativeGuess = 0;
-        int countMLNeutralGuess = 0;
-
-        int countMLNegative = 0;
-        int countMLPositive = 0;
-        int countMLNeutral = 0;
-
-        for (Tweet t: tweets){
-            switch (t.getExpectedSentiment()) {
-                case POSITIVE:
-                    countTotalPositive++;
-                    if (t.getSentimentML().equals(POSITIVE)) {
-                        countMLPositive++;
-                    }
-                    break;
-                case (NEGATIVE):
-                    countTotalNegative++;
-                    if (t.getSentimentML().equals(NEGATIVE)) {
-                        countMLNegative++;
-                    }
-                    break;
-                case NEUTRAL:
-                    countTotalNeutral++;
-                    if (t.getSentimentML().equals(NEUTRAL)) {
-                        countMLNeutral++;
-                    }
-                    break;
-                default:
-                    countTotalInputErrors++;
-                    break;
-            }
-            switch ((t.getSentimentML())){
-                case POSITIVE:countMLPositiveGuess++;break;
-                case NEGATIVE:countMLNegativeGuess++;break;
-                case NEUTRAL:countMLNeutralGuess++;break;
-            }
-        }
-        log.info("\nResults: Total Entries: {}. Total Rights: {}. {}%\n" +
-                        "Positives: Total: {}. ML Guesses: {}. ML Got Right: {}. {}%\n" +
-                        "Negatives: Total: {}. ML Guesses: {}. ML Got Right: {}. {}%\n" +
-                        "Neutrals: Total: {}. ML Guesses: {}. ML Got Right: {}. {}%\n" +
-                        "Input Missing Sentiment: {}",
-                tweets.size(),countMLNegative+countMLNeutral+countMLPositive,(double) (countMLNegative+countMLNeutral+countMLPositive)*100/tweets.size(),
-                countTotalPositive, countMLPositiveGuess, countMLPositive, (double)countMLPositive*100/countTotalPositive,
-                countTotalNegative, countMLNegativeGuess, countMLNegative, (double)countMLNegative*100/countTotalNegative,
-                countTotalNeutral, countMLNeutralGuess, countMLNeutral, (double)countMLNeutral*100/countTotalNeutral,
-                countTotalInputErrors
-        );
-
     }
 }

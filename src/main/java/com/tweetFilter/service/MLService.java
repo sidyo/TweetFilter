@@ -31,12 +31,12 @@ public class MLService {
         map.put(POSITIVE, new HashSet<>());
         map.put(NEGATIVE, new HashSet<>());
         map.put(NEUTRAL, new HashSet<>());
-        String dataset = MULTIPLESETS;
+        String dataset = K45;
         log.info("Started ML Training With Dataset: {}", dataset);
-        ConverterUtils.DataSource ds = new ConverterUtils.DataSource("src/main/resources/" + dataset);
+        ConverterUtils.DataSource ds = new ConverterUtils.DataSource("src/main/resources/" + dataset + ".arff");
         ins = ds.getDataSet();
         ins.setClassIndex(1);
-
+/*
         J48 tree = new J48();
         StringToWordVector filter = new StringToWordVector();
         filter.setInputFormat(ins);
@@ -49,6 +49,9 @@ public class MLService {
         fc.setFilter(filter);
         fc.setClassifier(tree);
         fc.buildClassifier(ins);
+        weka.core.SerializationHelper.write("src/main/resources/"+ dataset+".model", fc);
+*/
+        fc = (FilteredClassifier) weka.core.SerializationHelper.read("src/main/resources/" + dataset + ".model");
         log.info("Finished ML Training.");
     }
 

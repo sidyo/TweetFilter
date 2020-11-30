@@ -4,6 +4,7 @@ import com.tweetFilter.dto.Tweet;
 import com.tweetFilter.service.TweetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,7 +34,7 @@ public class TweetController {
 
     @GetMapping("/search")
     @ResponseStatus(OK)
-    public Set<Tweet> search(@RequestBody String filter){
-        return tweetService.search(filter);
+    public Set<Tweet> search(@RequestBody String filter, @RequestParam(required = false,name = "sentimento") String sentiment){
+        return tweetService.search(filter, sentiment);
     }
 }

@@ -23,7 +23,6 @@ import static com.tweetFilter.utils.Constants.POSITIVE;
 public class MLService {
     private final FilteredClassifier fc;
     private final Instances ins;
-    @Getter
     private final Map<String, Set<Tweet>> map;
 
     public MLService() throws Exception {
@@ -53,6 +52,10 @@ public class MLService {
 */
         fc = (FilteredClassifier) weka.core.SerializationHelper.read("src/main/resources/" + dataset + ".model");
         log.info("Finished ML Training.");
+    }
+
+    public Set<Tweet> getSentimentTweetSet(String sentiment){
+        return new HashSet<>(map.get(sentiment));
     }
 
     public void classifyTweets(List<Tweet> tweets) throws Exception {

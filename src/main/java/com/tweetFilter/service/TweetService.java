@@ -1,19 +1,22 @@
 package com.tweetFilter.service;
 
 import com.tweetFilter.dataStructures.InvertedList;
+import com.tweetFilter.dataStructures.InvertedListEntry;
 import com.tweetFilter.dataStructures.Trie;
 import com.tweetFilter.dto.Tweet;
+import com.tweetFilter.exceptions.InvalidSentimentException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Array;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.tweetFilter.utils.Constants.*;
+import static java.util.Objects.isNull;
 
 @Service
 @Slf4j
@@ -56,8 +59,8 @@ public class TweetService {
         printHitPercentage(tweetList);
     }
 
-    public Set<Tweet> search(String filter) {
-        log.info("Received filter: {}", filter);
+    public Set<Tweet> search(String filter, String sentiment) {
+        log.info("Received filter: {}. Sentiment: {}", filter, sentiment);
         Instant start = Instant.now();
         String[] filters = filter.trim().toLowerCase().split("\\s+");
         if (filters.length % 2 == 0) {
@@ -76,9 +79,22 @@ public class TweetService {
                     break;
             }
         }
+        if(!isNull(sentiment)){
+            Set<Tweet> sentimentSet = getSentimentTweetSet(sentiment);
+            resultSet.retainAll(sentimentSet);
+        }
         Instant end = Instant.now();
         log.info("Total tweets matching filter: {}. Total elapsed time: {} millis.", resultSet.size(), Duration.between(start, end).toMillis());
         return resultSet;
+    }
+
+    private Set<Tweet> getSentimentTweetSet(String sentiment) {
+        switch (StringUtils.capitalize(sentiment.toLowerCase())){
+            case POSITIVE: return mlService.getSentimentTweetSet(POSITIVE);
+            case NEGATIVE: return mlService.getSentimentTweetSet(NEGATIVE);
+            case NEUTRAL: return mlService.getSentimentTweetSet(NEUTRAL);
+            default: throw new InvalidSentimentException("The received sentiment is invalid: "+sentiment);
+        }
     }
 
     private Set<Tweet> getTweets(String filter) {

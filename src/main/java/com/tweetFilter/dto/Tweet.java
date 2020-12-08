@@ -1,8 +1,9 @@
 package com.tweetFilter.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode
+@JsonIgnoreProperties({"sentimentDict"})
 public class Tweet implements Serializable {
 
     private static final long serialVersionUID = 3487805389649513150L;
@@ -36,9 +38,8 @@ public class Tweet implements Serializable {
     @JsonProperty
     String expectedSentiment;
     @JsonProperty
-    @Ignore
+    @JsonIgnore
     String sentimentML;
     @JsonProperty
-    @Ignore
     String sentimentDict;
 }

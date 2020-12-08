@@ -62,23 +62,29 @@ public class TweetService {
     public Set<Tweet> search(String filter, String sentiment) {
         log.info("Received filter: {}. Sentiment: {}", filter, sentiment);
         Instant start = Instant.now();
-        String[] filters = filter.trim().toLowerCase().split("\\s+");
-        if (filters.length % 2 == 0) {
-            return null;
-        }
-        Set<Tweet> resultSet = getTweets(filters[0]);
-
-        for (int i = 1; i < filters.length; i = i + 2) {
-            Set<Tweet> nextFilter = getTweets(filters[i + 1]);
-            switch (filters[i]) {
-                case AND:
-                    resultSet.retainAll(nextFilter);
-                    break;
-                case OR:
-                    resultSet.addAll(nextFilter);
-                    break;
+        Set<Tweet> resultSet;
+        if(!isNull(filter)){
+            String[] filters = filter.trim().toLowerCase().split("\\s+");
+            if (filters.length % 2 == 0) {
+                return null;
             }
+            resultSet = getTweets(filters[0]);
+
+            for (int i = 1; i < filters.length; i = i + 2) {
+                Set<Tweet> nextFilter = getTweets(filters[i + 1]);
+                switch (filters[i]) {
+                    case AND:
+                        resultSet.retainAll(nextFilter);
+                        break;
+                    case OR:
+                        resultSet.addAll(nextFilter);
+                        break;
+                }
+            }
+        }else{
+            resultSet = new HashSet<>(tweets);
         }
+
         if(!isNull(sentiment)){
             Set<Tweet> sentimentSet = getSentimentTweetSet(sentiment);
             resultSet.retainAll(sentimentSet);
@@ -138,37 +144,41 @@ public class TweetService {
         int countDictNeutral = 0;
 
         for (Tweet t: tweets){
-            switch (t.getExpectedSentiment()) {
-                case POSITIVE:
-                    countTotalPositive++;
-                    if (t.getSentimentML().equals(POSITIVE)) {
-                        countMLPositive++;
-                    }
-                    if(t.getSentimentDict().equals(POSITIVE)) {
-                        countDictPositive++;
-                    }
-                    break;
-                case (NEGATIVE):
-                    countTotalNegative++;
-                    if (t.getSentimentML().equals(NEGATIVE)) {
-                        countMLNegative++;
-                    }
-                    if(t.getSentimentDict().equals(NEGATIVE)) {
-                        countDictNegative++;
-                    }
-                    break;
-                case NEUTRAL:
-                    countTotalNeutral++;
-                    if (t.getSentimentML().equals(NEUTRAL)) {
-                        countMLNeutral++;
-                    }
-                    if(t.getSentimentDict().equals(NEUTRAL)) {
-                        countDictNeutral++;
-                    }
-                    break;
-                default:
-                    countTotalInputErrors++;
-                    break;
+            if(isNull(t.getExpectedSentiment())){
+                countTotalInputErrors++;
+            }else{
+                switch (t.getExpectedSentiment()) {
+                    case POSITIVE:
+                        countTotalPositive++;
+                        if (t.getSentimentML().equals(POSITIVE)) {
+                            countMLPositive++;
+                        }
+                        if(t.getSentimentDict().equals(POSITIVE)) {
+                            countDictPositive++;
+                        }
+                        break;
+                    case (NEGATIVE):
+                        countTotalNegative++;
+                        if (t.getSentimentML().equals(NEGATIVE)) {
+                            countMLNegative++;
+                        }
+                        if(t.getSentimentDict().equals(NEGATIVE)) {
+                            countDictNegative++;
+                        }
+                        break;
+                    case NEUTRAL:
+                        countTotalNeutral++;
+                        if (t.getSentimentML().equals(NEUTRAL)) {
+                            countMLNeutral++;
+                        }
+                        if(t.getSentimentDict().equals(NEUTRAL)) {
+                            countDictNeutral++;
+                        }
+                        break;
+                    default:
+                        countTotalInputErrors++;
+                        break;
+                }
             }
             switch ((t.getSentimentML())){
                 case POSITIVE:countMLPositiveGuess++;break;

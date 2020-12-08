@@ -34,7 +34,7 @@ public class TweetController {
 
     @GetMapping("/search")
     @ResponseStatus(OK)
-    public Set<Tweet> search(@RequestBody String filter, @RequestParam(required = false,name = "sentimento") String sentiment){
+    public Set<Tweet> search(@RequestBody(required = false) String filter, @RequestParam(required = false,name = "sentimento") String sentiment){
         return tweetService.search(filter, sentiment);
     }
 }
